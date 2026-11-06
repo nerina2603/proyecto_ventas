@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Editar cliente')}"></head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <main class="container py-4" style="max-width: 720px">
+        <h1 class="h2 mb-4">Editar cliente</h1>
+        <form th:action="@{/clientes/editar/{id}(id=${cliente.id})}" th:object="${cliente}" method="post">
+            <div class="mb-3"><label class="form-label" for="id">ID</label><input class="form-control" id="id" th:field="*{id}" readonly></div>
+            <div class="mb-3"><label class="form-label" for="nombre">Nombre</label><input class="form-control" id="nombre" th:field="*{nombre}" required></div>
+            <div class="mb-3"><label class="form-label" for="apellido1">Apellido 1</label><input class="form-control" id="apellido1" th:field="*{apellido1}" required></div>
+            <div class="mb-3"><label class="form-label" for="apellido2">Apellido 2</label><input class="form-control" id="apellido2" th:field="*{apellido2}"></div>
+            <div class="mb-3"><label class="form-label" for="ciudad">Ciudad</label><input class="form-control" id="ciudad" th:field="*{ciudad}"></div>
+            <div class="mb-4"><label class="form-label" for="categoría">Categoría</label><input class="form-control" id="categoría" type="number" th:field="*{categoría}"></div>
+            <button class="btn btn-primary" type="submit">Guardar</button>
+            <a class="btn btn-outline-secondary ms-2" th:href="@{/clientes}">Cancelar</a>
+        </form>
+    </main>
+</body>
+</html>

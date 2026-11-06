@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head('Detalle del pedido')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <main class="container py-4" style="max-width: 720px">
+        <h1 class="h2 mb-4">Detalle del pedido</h1>
+        <dl class="row">
+            <dt class="col-sm-4">ID</dt>
+            <dd class="col-sm-8" th:text="${pedido.id}">0</dd>
+            <dt class="col-sm-4">Total</dt>
+            <dd class="col-sm-8" th:text="${pedido.total}">0.00</dd>
+            <dt class="col-sm-4">Fecha</dt>
+            <dd class="col-sm-8" th:text="${pedido.fecha ?: '-'}">fecha</dd>
+            <dt class="col-sm-4">Cliente</dt>
+            <dd class="col-sm-8" th:text="${pedido.clienteNombre}">cliente</dd>
+            <dt class="col-sm-4">Comercial</dt>
+            <dd class="col-sm-8" th:text="${pedido.comercialNombre}">comercial</dd>
+        </dl>
+        <a class="btn btn-outline-secondary" th:href="@{/pedidos}">Volver a pedidos</a>
+    </main>
+</body>
+
+</html>

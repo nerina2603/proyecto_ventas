@@ -1,68 +1,24 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Comerciales</title>
-    <style>
-        #contenedora {
-            margin: 0 auto;
-            width: 95%;
-        }
 
-        .table-container {
-            overflow-x: auto;
-        }
+<head th:replace="~{fragments/layout :: head('Comerciales')}"></head>
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 0.7rem 0.6rem;
-            border-bottom: 1px solid #ccd4da;
-            text-align: left;
-        }
-
-        th {
-            background: #e9eef2;
-        }
-
-        .comerciales-actions {
-            white-space: normal;
-        }
-
-        .comerciales-actions form {
-            display: block;
-            margin-bottom: 0.25rem;
-        }
-
-        .comerciales-actions input {
-            box-sizing: border-box;
-            max-width: 100%;
-        }
-
-        tbody tr:hover {
-            background: #f5f8fa;
-        }
-    </style>
-</head>
 <body>
-    <main id="contenedora">
-        <div class="page-header">
-            <h1>Comerciales</h1>
-            <form action="/comerciales/crear">
-                <input type="submit" value="Crear">
-            </form>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <main class="container py-4">
+        <div class="alert alert-danger" role="alert" th:if="${error}" th:text="${error}"></div>
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <h1 class="h2 mb-0">Comerciales</h1>
+            <a class="btn btn-primary" th:href="@{/comerciales/crear}">Crear comercial</a>
         </div>
-        <div class="table-container">
-            <table>
-                <thead>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
                     <tr>
                         <th>ID</th>
                         <th>Nombre</th>
-                        <th>Apellido1</th>
-                        <th>Apellido2</th>
+                        <th>Apellido 1</th>
+                        <th>Apellido 2</th>
                         <th>Comisión</th>
                         <th>Acciones</th>
                     </tr>
@@ -74,16 +30,15 @@
                         <td th:text="${comercial.apellido1}">apellido1</td>
                         <td th:text="${comercial.apellido2 ?: '-'}">apellido2</td>
                         <td th:text="${comercial.comisión ?: '-'}">comisión</td>
-                        <td class="comerciales-actions">
-                            <form th:action="@{/comerciales/{id}(id=${comercial.id})}" method="post">
-                                <input type="submit" value="Ver Detalle">
-                            </form>
-                            <form th:action="@{/comerciales/editar/{id}(id=${comercial.id})}" method="get">
-                                <input type="submit" value="Editar">
-                            </form>
-                            <form th:action="@{/comerciales/borrar/{id}(id=${comercial.id})}" method="post">
-                                <input type="submit" value="Eliminar">
-                            </form>
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                <form th:action="@{/comerciales/{id}(id=${comercial.id})}" method="get"><button
+                                        class="btn btn-sm btn-outline-primary" type="submit">Ver detalle</button></form>
+                                <form th:action="@{/comerciales/editar/{id}(id=${comercial.id})}" method="get"><button
+                                        class="btn btn-sm btn-outline-secondary" type="submit">Editar</button></form>
+                                <form th:action="@{/comerciales/borrar/{id}(id=${comercial.id})}" method="post"><button
+                                        class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button></form>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -91,4 +46,5 @@
         </div>
     </main>
 </body>
+
 </html>

@@ -13,5 +13,5 @@ public class Cliente {
 	private String apellido1;
 	private String apellido2;
 	private String ciudad;
-	private int categoría;
+	private Integer categoría;
 }

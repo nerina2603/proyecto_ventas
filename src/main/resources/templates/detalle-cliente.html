@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Detalle del cliente')}"></head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <main class="container py-4" style="max-width: 720px">
+        <h1 class="h2 mb-4">Detalle del cliente</h1>
+        <dl class="row">
+            <dt class="col-sm-4">ID</dt><dd class="col-sm-8" th:text="${cliente.id}">0</dd>
+            <dt class="col-sm-4">Nombre</dt><dd class="col-sm-8" th:text="${cliente.nombre}">nombre</dd>
+            <dt class="col-sm-4">Apellido 1</dt><dd class="col-sm-8" th:text="${cliente.apellido1}">apellido1</dd>
+            <dt class="col-sm-4">Apellido 2</dt><dd class="col-sm-8" th:text="${cliente.apellido2 ?: '-'}">apellido2</dd>
+            <dt class="col-sm-4">Ciudad</dt><dd class="col-sm-8" th:text="${cliente.ciudad ?: '-'}">ciudad</dd>
+            <dt class="col-sm-4">Categoría</dt><dd class="col-sm-8" th:text="${cliente.categoría ?: '-'}">categoría</dd>
+        </dl>
+        <a class="btn btn-outline-secondary" th:href="@{/clientes}">Volver</a>
+    </main>
+</body>
+</html>
