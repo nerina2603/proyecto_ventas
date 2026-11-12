@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -24,10 +25,16 @@ public class ClienteController {
     }
 
     @GetMapping("/clientes")
-    public String listar(Model model) {
-        List<Cliente> clientes = clienteService.listAll();
+    public String listar(@RequestParam(required = false) String ciudad, Model model) {
+        List<Cliente> clientes = clienteService.listByCity(ciudad);
         model.addAttribute("clientes", clientes);
+        model.addAttribute("ciudad", ciudad == null ? "" : ciudad);
         return "clientes";
+    }
+
+    @GetMapping("/clientes/ciudad/{ciudad}")
+    public String listarPorCiudad(@PathVariable String ciudad, Model model) {
+        return listar(ciudad, model);
     }
 
     @GetMapping("/clientes/{id}")
@@ -35,6 +42,7 @@ public class ClienteController {
         return clienteService.find(id)
                 .map(cliente -> {
                     model.addAttribute("cliente", cliente);
+                    model.addAttribute("pedidos", clienteService.listPedidosByCliente(id));
                     return "detalle-cliente";
                 })
                 .orElse("redirect:/clientes");

@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.iesvdm.modelo.Pedido;
 import org.iesvdm.modelo.PedidoDetalle;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -18,6 +19,24 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Repository
 public class PedidoDAOImpl implements PedidoDAO {
+
+    private static final String SELECT_PEDIDOS_CON_NOMBRES = """
+            SELECT p.id, p.total, p.fecha, p.id_cliente, p.id_comercial,
+               CONCAT_WS(' ', c.nombre, c.apellido1, c.apellido2) AS cliente_nombre,
+               CONCAT_WS(' ', co.nombre, co.apellido1, co.apellido2) AS comercial_nombre
+            FROM pedido p
+            JOIN cliente c ON p.id_cliente = c.id
+            JOIN comercial co ON p.id_comercial = co.id
+            """;
+
+    private static final RowMapper<PedidoDetalle> PEDIDO_DETALLE_ROW_MAPPER = (rs, rowNum) -> new PedidoDetalle(
+            rs.getInt("id"),
+            rs.getBigDecimal("total"),
+            toLocalDate(rs.getDate("fecha")),
+            rs.getInt("id_cliente"),
+            rs.getInt("id_comercial"),
+            rs.getString("cliente_nombre"),
+            rs.getString("comercial_nombre"));
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -65,26 +84,28 @@ public class PedidoDAOImpl implements PedidoDAO {
 
     @Override
     public List<PedidoDetalle> getAllWithDetails() {
-        List<PedidoDetalle> pedidos = jdbcTemplate.query("""
-                SELECT p.id, p.total, p.fecha, p.id_cliente, p.id_comercial,
-                       CONCAT_WS(' ', c.nombre, c.apellido1, c.apellido2) AS cliente_nombre,
-                       CONCAT_WS(' ', co.nombre, co.apellido1, co.apellido2) AS comercial_nombre
-                FROM pedido p
-                JOIN cliente c ON p.id_cliente = c.id
-                JOIN comercial co ON p.id_comercial = co.id
-                ORDER BY p.id
-                """,
-                (rs, rowNum) -> new PedidoDetalle(
-                        rs.getInt("id"),
-                        rs.getBigDecimal("total"),
-                        toLocalDate(rs.getDate("fecha")),
-                        rs.getInt("id_cliente"),
-                        rs.getInt("id_comercial"),
-                        rs.getString("cliente_nombre"),
-                        rs.getString("comercial_nombre")));
+        List<PedidoDetalle> pedidos = jdbcTemplate.query(
+                SELECT_PEDIDOS_CON_NOMBRES + " ORDER BY p.id",
+                PEDIDO_DETALLE_ROW_MAPPER);
 
         log.info("Devueltos {} registros de Pedido con nombres.", pedidos.size());
         return pedidos;
+    }
+
+    @Override
+    public List<PedidoDetalle> findByComercialId(int comercialId) {
+        return jdbcTemplate.query(
+                SELECT_PEDIDOS_CON_NOMBRES + " WHERE p.id_comercial = ? ORDER BY p.id",
+                PEDIDO_DETALLE_ROW_MAPPER,
+                comercialId);
+    }
+
+    @Override
+    public List<PedidoDetalle> findByClienteId(int clienteId) {
+        return jdbcTemplate.query(
+                SELECT_PEDIDOS_CON_NOMBRES + " WHERE p.id_cliente = ? ORDER BY p.id",
+                PEDIDO_DETALLE_ROW_MAPPER,
+                clienteId);
     }
 
     @Override
@@ -104,23 +125,9 @@ public class PedidoDAOImpl implements PedidoDAO {
 
     @Override
     public Optional<PedidoDetalle> findDetails(int id) {
-        List<PedidoDetalle> pedidos = jdbcTemplate.query("""
-                SELECT p.id, p.total, p.fecha, p.id_cliente, p.id_comercial,
-                       CONCAT_WS(' ', c.nombre, c.apellido1, c.apellido2) AS cliente_nombre,
-                       CONCAT_WS(' ', co.nombre, co.apellido1, co.apellido2) AS comercial_nombre
-                FROM pedido p
-                JOIN cliente c ON p.id_cliente = c.id
-                JOIN comercial co ON p.id_comercial = co.id
-                WHERE p.id = ?
-                """,
-                (rs, rowNum) -> new PedidoDetalle(
-                        rs.getInt("id"),
-                        rs.getBigDecimal("total"),
-                        toLocalDate(rs.getDate("fecha")),
-                        rs.getInt("id_cliente"),
-                        rs.getInt("id_comercial"),
-                        rs.getString("cliente_nombre"),
-                        rs.getString("comercial_nombre")),
+        List<PedidoDetalle> pedidos = jdbcTemplate.query(
+                SELECT_PEDIDOS_CON_NOMBRES + " WHERE p.id = ?",
+                PEDIDO_DETALLE_ROW_MAPPER,
                 id);
 
         return pedidos.stream().findFirst();
@@ -148,7 +155,7 @@ public class PedidoDAOImpl implements PedidoDAO {
         log.info("Delete de Pedido con {} registros eliminados.", rows);
     }
 
-    private LocalDate toLocalDate(Date fecha) {
+    private static LocalDate toLocalDate(Date fecha) {
         return fecha == null ? null : fecha.toLocalDate();
     }
 }

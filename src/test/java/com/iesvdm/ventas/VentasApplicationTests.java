@@ -116,4 +116,20 @@ class VentasApplicationTests {
 		assertEquals("redirect:/comerciales", comercialController.submitBorrar(2, comercialFlash));
 		assertTrue(((String) comercialFlash.getFlashAttributes().get("error")).contains("tiene pedidos asociados"));
 	}
+
+	@Test
+	void clientListFiltersByCityAndKeepsSearchValue() {
+		Cliente cliente = new Cliente(1, "Ana", "Ruiz", null, "Sevilla", 100);
+		when(clienteService.listByCity("Sevilla")).thenReturn(List.of(cliente));
+		ClienteController clienteController = new ClienteController(clienteService);
+		ExtendedModelMap model = new ExtendedModelMap();
+
+		assertEquals("clientes", clienteController.listar("Sevilla", model));
+		assertEquals("Sevilla", model.get("ciudad"));
+		assertEquals(List.of(cliente), model.get("clientes"));
+		verify(clienteService).listByCity("Sevilla");
+
+		assertEquals("clientes", clienteController.listarPorCiudad("Sevilla", model));
+		verify(clienteService, org.mockito.Mockito.times(2)).listByCity("Sevilla");
+	}
 }

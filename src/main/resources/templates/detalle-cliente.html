@@ -1,19 +1,57 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{fragments/layout :: head('Detalle del cliente')}"></head>
+
 <body>
     <nav th:replace="~{fragments/layout :: navbar}"></nav>
     <main class="container py-4" style="max-width: 720px">
         <h1 class="h2 mb-4">Detalle del cliente</h1>
         <dl class="row">
-            <dt class="col-sm-4">ID</dt><dd class="col-sm-8" th:text="${cliente.id}">0</dd>
-            <dt class="col-sm-4">Nombre</dt><dd class="col-sm-8" th:text="${cliente.nombre}">nombre</dd>
-            <dt class="col-sm-4">Apellido 1</dt><dd class="col-sm-8" th:text="${cliente.apellido1}">apellido1</dd>
-            <dt class="col-sm-4">Apellido 2</dt><dd class="col-sm-8" th:text="${cliente.apellido2 ?: '-'}">apellido2</dd>
-            <dt class="col-sm-4">Ciudad</dt><dd class="col-sm-8" th:text="${cliente.ciudad ?: '-'}">ciudad</dd>
-            <dt class="col-sm-4">Categoría</dt><dd class="col-sm-8" th:text="${cliente.categoría ?: '-'}">categoría</dd>
+            <dt class="col-sm-4">ID</dt>
+            <dd class="col-sm-8" th:text="${cliente.id}">0</dd>
+            <dt class="col-sm-4">Nombre</dt>
+            <dd class="col-sm-8" th:text="${cliente.nombre}">nombre</dd>
+            <dt class="col-sm-4">Apellido 1</dt>
+            <dd class="col-sm-8" th:text="${cliente.apellido1}">apellido1</dd>
+            <dt class="col-sm-4">Apellido 2</dt>
+            <dd class="col-sm-8" th:text="${cliente.apellido2 ?: '-'}">apellido2</dd>
+            <dt class="col-sm-4">Ciudad</dt>
+            <dd class="col-sm-8" th:text="${cliente.ciudad ?: '-'}">ciudad</dd>
+            <dt class="col-sm-4">Categoría</dt>
+            <dd class="col-sm-8" th:text="${cliente.categoría ?: '-'}">categoría</dd>
         </dl>
+
+        <h2 class="h4 mt-4 mb-3">Pedidos realizados</h2>
+        <div class="table-responsive mb-4">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th class="text-end">Total</th>
+                        <th>Fecha</th>
+                        <th>Comercial</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="pedido : ${pedidos}">
+                        <td th:text="${pedido.id}">1</td>
+                        <td class="text-end" th:text="${pedido.total}">0.00</td>
+                        <td th:text="${pedido.fecha ?: '-'}">2026-01-01</td>
+                        <td>
+                            <a th:href="@{/comerciales/{id}(id=${pedido.comercialId})}" target="_blank"
+                                rel="noopener noreferrer" th:text="${pedido.comercialNombre}">Comercial</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(pedidos)}">
+                        <td colspan="4" class="text-muted">Este cliente no tiene pedidos.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
         <a class="btn btn-outline-secondary" th:href="@{/clientes}">Volver</a>
     </main>
 </body>
+
 </html>
