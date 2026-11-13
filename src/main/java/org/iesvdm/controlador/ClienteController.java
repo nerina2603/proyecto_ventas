@@ -1,5 +1,6 @@
 package org.iesvdm.controlador;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.iesvdm.modelo.Cliente;
@@ -8,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,9 +67,32 @@ public class ClienteController {
         return clienteService.find(id)
                 .map(cliente -> {
                     model.addAttribute("cliente", cliente);
+                    model.addAttribute("comercialesDisponibles", clienteService.listComercialesDisponibles(id));
+                    model.addAttribute("comercialesVinculados", clienteService.listComercialesByCliente(id));
+                    model.addAttribute("fechaVinculo", LocalDate.now());
                     return "editar-cliente";
                 })
                 .orElse("redirect:/clientes");
+    }
+
+    @PostMapping("/clientes/editar/{id}/comerciales")
+    public String submitAnadirComercial(@PathVariable int id,
+            @RequestParam int comercialId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam int prioridad,
+            RedirectAttributes redirectAttributes) {
+        try {
+            clienteService.addComercialToCliente(id, comercialId, fecha, prioridad);
+        } catch (DataIntegrityViolationException exception) {
+            redirectAttributes.addFlashAttribute("error", "Ese comercial ya está vinculado a este cliente.");
+        }
+        return "redirect:/clientes/editar/" + id;
+    }
+
+    @PostMapping("/clientes/editar/{clienteId}/comerciales/{comercialId}/borrar")
+    public String submitBorrarComercial(@PathVariable int clienteId, @PathVariable int comercialId) {
+        clienteService.removeComercialFromCliente(clienteId, comercialId);
+        return "redirect:/clientes/editar/" + clienteId;
     }
 
     @PostMapping("/clientes/editar/{id}")
