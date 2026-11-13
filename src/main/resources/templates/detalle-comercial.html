@@ -5,7 +5,7 @@
 
 <body>
     <nav th:replace="~{fragments/layout :: navbar}"></nav>
-    <main class="container py-4" style="max-width: 720px">
+    <main class="container py-4" style="max-width: 960px">
         <h1 class="h2 mb-4">Detalle del comercial</h1>
         <dl class="row">
             <dt class="col-sm-4">ID</dt>
@@ -19,7 +19,24 @@
             <dt class="col-sm-4">Comisión</dt>
             <dd class="col-sm-8" th:text="${comercial.comisión ?: '-'}">comisión</dd>
         </dl>
+        <section class="mb-4" aria-labelledby="estadisticas-pedidos">
+            <h2 class="h4 mb-3" id="estadisticas-pedidos">Estadísticas de pedidos</h2>
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Cantidad de pedidos</dt>
+                <dd class="col-sm-8" th:text="${estadisticasPedidos.cantidadPedidos}">0</dd>
+                <dt class="col-sm-4">Importe total</dt>
+                <dd class="col-sm-8" th:text="${#numbers.formatDecimal(estadisticasPedidos.importeTotal, 1, 2)}">0.00
+                </dd>
+                <dt class="col-sm-4">Importe medio por pedido</dt>
+                <dd class="col-sm-8" th:text="${#numbers.formatDecimal(estadisticasPedidos.importeMedio, 1, 2)}">0.00
+                </dd>
+            </dl>
+        </section>
         <h2 class="h4 mt-4 mb-3">Pedidos</h2>
+        <p class="small mb-2">
+            <span class="badge text-bg-success">Verde</span> Importe máximo
+            <span class="badge text-bg-warning ms-2">Amarillo</span> Importe mínimo
+        </p>
         <div class="table-responsive mb-4">
             <table class="table table-striped align-middle">
                 <thead>
@@ -31,7 +48,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="pedido : ${pedidos}">
+                    <tr th:each="pedido : ${pedidos}"
+                        th:classappend="${estadisticasPedidos.importeMaximo != null and pedido.total.compareTo(estadisticasPedidos.importeMaximo) == 0 ? 'table-success' : (estadisticasPedidos.importeMinimo != null and pedido.total.compareTo(estadisticasPedidos.importeMinimo) == 0 ? 'table-warning' : '')}">
                         <td th:text="${pedido.id}">1</td>
                         <td class="text-end" th:text="${pedido.total}">0.00</td>
                         <td th:text="${pedido.fecha ?: '-'}">2026-01-01</td>
@@ -42,6 +60,29 @@
                     </tr>
                     <tr th:if="${#lists.isEmpty(pedidos)}">
                         <td colspan="4" class="text-muted">Este comercial no tiene pedidos.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h2 class="h4 mt-4 mb-3">Clientes por importe total de pedidos</h2>
+        <div class="table-responsive mb-4">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th class="text-end">Importe total de sus pedidos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="cliente : ${clientesPorImporte}">
+                        <td>
+                            <a th:href="@{/clientes/{id}(id=${cliente.clienteId})}" target="_blank"
+                                rel="noopener noreferrer" th:text="${cliente.nombre}">Cliente</a>
+                        </td>
+                        <td class="text-end" th:text="${#numbers.formatDecimal(cliente.importeTotal, 1, 2)}">0.00</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(clientesPorImporte)}">
+                        <td colspan="2" class="text-muted">No hay clientes con pedidos de este comercial.</td>
                     </tr>
                 </tbody>
             </table>
